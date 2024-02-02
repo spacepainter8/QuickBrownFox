@@ -35,14 +35,14 @@ module cpu #(
     reg PC_cl, PC_ld, PC_inc, PC_dec, PC_sr, PC_ir, PC_sl, PC_il;
     reg [ADDR_WIDTH-1:0] PC_in;
 
-    register #(.DATA_WIDTH(ADDR_WIDTH)) PC (.clk(clk), .rst_n(rst_n), .cl(PC_cl), .ld(PC_ld), .in(PC_in), 
+    registerSeq #(.DATA_WIDTH(ADDR_WIDTH)) PC (.clk(clk), .rst_n(rst_n), .cl(PC_cl), .ld(PC_ld), .in(PC_in), 
         .inc(PC_inc), .dec(PC_dec), .sr(PC_sr), .ir(PC_ir), .sl(PC_sl), .il(PC_il), .out(pc));
 
 // SP stuff
     reg SP_cl, SP_ld, SP_inc, SP_dec, SP_sr, SP_ir, SP_sl, SP_il;
     reg [ADDR_WIDTH-1:0] SP_in;
 
-    register #(.DATA_WIDTH(ADDR_WIDTH)) SP (.clk(clk), .rst_n(rst_n), .cl(SP_cl), .ld(SP_ld), .in(SP_in), 
+    registerSeq #(.DATA_WIDTH(ADDR_WIDTH)) SP (.clk(clk), .rst_n(rst_n), .cl(SP_cl), .ld(SP_ld), .in(SP_in), 
         .inc(SP_inc), .dec(SP_dec), .sr(SP_sr), .ir(SP_ir), .sl(SP_sl), .il(SP_il), .out(sp));
 
 // IRH stuff
@@ -50,14 +50,14 @@ module cpu #(
     reg [15:0] IRH_in;
     wire [15:0] IRH_out;
 
-    register #(.DATA_WIDTH(16)) IRH (.clk(clk), .rst_n(rst_n), .cl(IRH_cl), .ld(IRH_ld), .in(IRH_in),
+    registerSeq #(.DATA_WIDTH(16)) IRH (.clk(clk), .rst_n(rst_n), .cl(IRH_cl), .ld(IRH_ld), .in(IRH_in),
         .inc(IRH_inc), .dec(IRH_dec), .sr(IRH_sr), .ir(IRH_sr), .sl(IRH_sl), .il(IRH_il), .out(IRH_out));
 // IRL stuff
     reg IRL_cl, IRL_ld, IRL_inc, IRL_dec, IRL_sr, IRL_ir, IRL_sl, IRL_il;
     reg [15:0] IRL_in;
     wire [15:0] IRL_out;
 
-    register #(.DATA_WIDTH(16)) IRL (.clk(clk), .rst_n(rst_n), .cl(IRL_cl), .ld(IRL_ld), .in(IRL_in),
+    registerSeq #(.DATA_WIDTH(16)) IRL (.clk(clk), .rst_n(rst_n), .cl(IRL_cl), .ld(IRL_ld), .in(IRL_in),
         .inc(IRL_inc), .dec(IRL_dec), .sr(IRL_sr), .ir(IRL_sr), .sl(IRL_sl), .il(IRL_il), .out(IRL_out));
 
 // AL stuff
@@ -65,7 +65,7 @@ module cpu #(
     reg [15:0] AL_in;
     wire [15:0] AL_out;
 
-    register #(.DATA_WIDTH(16)) AL (.clk(clk), .rst_n(rst_n), .cl(AL_cl), .ld(AL_ld), .in(AL_in),
+    registerSeq #(.DATA_WIDTH(16)) AL (.clk(clk), .rst_n(rst_n), .cl(AL_cl), .ld(AL_ld), .in(AL_in),
         .inc(AL_inc), .dec(AL_dec), .sr(AL_sr), .ir(AL_sr), .sl(AL_sl), .il(AL_il), .out(AL_out));
 
 

@@ -1,5 +1,5 @@
 
-module register #(
+module registerSeq #(
     parameter DATA_WIDTH = 16
 )(
     input clk,
