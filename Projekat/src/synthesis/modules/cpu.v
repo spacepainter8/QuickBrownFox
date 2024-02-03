@@ -22,12 +22,16 @@ module cpu #(
 
     // states
     reg[3:0] state_reg, state_next;
-    localparam start = 3'h0;
-    localparam fetchH = 3'h1;
-    localparam fetchLorExec = 3'h2;
-    localparam inIndirect = 3'h3;
-    localparam outFetchData = 3'h4;
-    localparam outIndirectFetchAddress = 3'h5;
+    localparam start = 4'h0;
+    localparam fetchH = 4'h1;
+    localparam fetchLorExec = 4'h2;
+    localparam inIndirect = 4'h3;
+    localparam outFetchData = 4'h4;
+    localparam outIndirectFetchAddress = 4'h5;
+    localparam movWrite = 4'h6;
+    localparam movReadData = 4'h7;
+    localparam movWriteInd = 4'h8;
+    localparam movConst = 4'h9;
 // cl, ld, in, inc, dec, sr, ir, sl, il, out
     
 
@@ -187,6 +191,41 @@ module cpu #(
                             end
                         endcase
                     end
+
+                    4'h0:begin
+                        // MOV instruction
+                        case (mem_in[3:0])
+                            4'b0000:begin
+                                // first version of MOV (without the second instruction byte)
+                                // check for second op (in)direct
+                                case (mem_in[7])
+                                    1'b0:begin
+                                        // second op is direct
+                                        // reading it from mem in next clock
+                                        mem_we = 0;
+                                        mem_addr = mem_in[6:4];
+                                        state_next = movWrite;
+                                    end 
+                                    1'b1:begin
+                                        // second op is indirect
+                                        // readint its address from mem in next clock
+                                        mem_we = 0;
+                                        mem_addr = mem_in[6:4];
+                                        state_next = movReadData;
+                                    end 
+                                endcase
+                            end 
+                            4'b1000:begin
+                                // second version of MOV (with the instruction byte)
+                                // fetch second byte 
+                                mem_we = 0;
+                                mem_addr = pc;
+                                PC_inc = 1'b1;
+
+                                state_next = movConst;
+                            end
+                        endcase
+                    end
                 endcase
             end     
 
@@ -211,6 +250,69 @@ module cpu #(
                 mem_addr = mem_in;
                 state_next = outFetchData;
             end
+
+            movReadData: begin
+                // setting up reading data to be written in first version of MOV
+                // reading it from mem in next clock
+                mem_we = 0;
+                mem_addr = mem_in;
+                state_next = movWrite;
+
+            end 
+
+
+            movWrite: begin
+                // mem_in contains the data that is going to be written
+                // check for first op (in)direct
+                // instruction byte is in IRH
+
+                case (IRH_out[11])
+                    1'b0:begin
+                        // direct
+                        // just use first op as the address 
+                        mem_we = 1;
+                        mem_addr = IRH_out[10:8];
+                        mem_data = mem_in;
+                        state_next = fetchH;
+                    end 
+                    1'b1:begin
+                        // indirect
+                        // get the goal address using the first op as the address
+                        AL_in = mem_in; AL_ld = 1'b1;
+                        mem_we = 0;
+                        mem_addr = IRH_out[10:8];
+                        state_next = movWriteInd;
+                    end 
+                endcase
+            end 
+
+            movWriteInd: begin
+                // mem_in contains the address to be written to
+                // al contains the data to be written
+
+                mem_we = 1;
+                mem_addr = mem_in;
+                mem_data = AL_out;
+                AL_cl = 1;
+
+                state_next = fetchH;
+            end 
+
+            movConst: begin
+                // mem_in containt the second byte of the MOV instruction
+                // load the second byte into IRL
+                IRL_in = mem_in;
+                IRL_ld = 1'b1;
+
+                // set this up so data is in mem_in
+                // it already is so this mightve been with one clock else but whatever
+
+                mem_we = 1'b0;
+                mem_addr = pc - 1'b1;
+
+                state_next = movWrite;
+
+            end 
         endcase
 
 

@@ -223,11 +223,11 @@ module DE0_TOP
 	// 	.hex({HEX3_D, HEX2_D, HEX1_D, HEX0_D})
 	// );
 
-	cpu #(.ADDR_WIDTH(1), .DATA_WIDTH(1)) cpu_inst (
+	cpu #(.ADDR_WIDTH(6), .DATA_WIDTH(16)) cpu_inst (
 		.clk(CLOCK_50),
 		.rst_n(SW[9]),
-		.mem_in(SW[8]),
-		.in(SW[7]),
+		.mem_in(0),
+		.in(0),
 		.mem_we(LEDG[0]),
 		.mem_addr(LEDG[1]),
 		.mem_data(LEDG[2]),
