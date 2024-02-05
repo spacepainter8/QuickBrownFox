@@ -32,6 +32,11 @@ module cpu #(
     localparam movReadData = 4'h7;
     localparam movWriteInd = 4'h8;
     localparam movConst = 4'h9;
+    localparam firstOpToAl = 4'hA;
+    localparam fetchFirstOp = 4'hB;
+    localparam secondOp = 4'hC;
+    localparam fetchSecondOp = 4'hD;
+    localparam writeArith = 4'hE;
 // cl, ld, in, inc, dec, sr, ir, sl, il, out
     
 
@@ -72,6 +77,12 @@ module cpu #(
     register #(.DATA_WIDTH(16)) AL (.clk(clk), .rst_n(rst_n), .cl(AL_cl), .ld(AL_ld), .in(AL_in),
         .inc(AL_inc), .dec(AL_dec), .sr(AL_sr), .ir(AL_sr), .sl(AL_sl), .il(AL_il), .out(AL_out));
 
+// ALU stuff
+    reg [2:0] ALU_oc;
+    reg [DATA_WIDTH-1:0] ALU_a, ALU_b;
+    wire [DATA_WIDTH-1:0] ALU_out;
+
+    alu #(.DATA_WIDTH(DATA_WIDTH)) ALU (.oc(ALU_oc), .a(ALU_a), .b(ALU_b), .f(ALU_out));
 
 
     always @(posedge clk, negedge rst_n) begin
@@ -114,6 +125,11 @@ module cpu #(
         AL_cl = 1'b0; AL_ld = 1'b0; AL_inc = 1'b0; AL_dec = 1'b0; 
         AL_sr = 1'b0; AL_ir = 1'b0; AL_sl = 1'b0; AL_il = 1'b0;
         AL_in = 16'h0;
+
+    // ALU signals
+        ALU_oc = 3'b0;
+        ALU_a = {DATA_WIDTH{1'b0}};
+        ALU_b = {DATA_WIDTH{1'b0}};
 
         case (state_reg)
             
@@ -226,6 +242,27 @@ module cpu #(
                             end
                         endcase
                     end
+
+                    4'b0001,
+                    4'b0010,
+                    4'b0011,
+                    4'b0100: begin
+                        // arithmetic instructions
+                        mem_we = 1'b0;
+                        mem_addr = mem_in[6:4];
+                        case (mem_in[7])
+                            1'b0:begin
+                                // first arith op is direct
+                                state_next = firstOpToAl;
+                            end 
+                            1'b1:begin
+                                // first arith op is indirect
+                                state_next = fetchFirstOp;
+                            end 
+                        endcase
+                    end
+
+
                 endcase
             end     
 
@@ -313,6 +350,101 @@ module cpu #(
                 state_next = movWrite;
 
             end 
+
+            fetchFirstOp: begin
+                // read first arith op from memory
+                mem_we = 0;
+                mem_addr = mem_in;
+                state_next = firstOpToAl;
+            end
+
+            firstOpToAl: begin
+                // first arith op is in mem_in
+
+                // load first arith op to AL
+                AL_in = mem_in;
+                AL_ld = 1'b1;
+
+                // handling second arith op
+                mem_we = 0;
+                mem_addr = IRH_out[2:0];
+                case (IRH_out[3])
+                    1'b0: begin
+                        // direct
+                        state_next = secondOp;
+                    end 
+                    1'b1: begin
+                        // indirect
+                        state_next = fetchSecondOp;
+                    end 
+                endcase
+            end
+
+            fetchSecondOp: begin
+                // read second arith op from memory
+                mem_we = 0;
+                mem_addr = mem_in;
+                state_next = secondOp;
+            end
+
+            secondOp: begin
+                // first arith op is in AL
+                // second arith op is on MEM_IN
+
+                // handle the calculation and writing into the resulting operand
+                case (IRH_out[11])
+                    1'b0:begin
+                        // direct
+
+                        // calculate
+                        ALU_a = AL_out;
+                        ALU_b = mem_in;
+                        ALU_oc = (IRH_out[15:12] == 4'b0001)? 3'b000:
+                                ((IRH_out[15:12] == 4'b0010))? 3'b001:
+                                ((IRH_out[15:12] == 4'b0011))? 3'b010: 3'b011;
+
+                        // write the result
+                        mem_we = 1'b1;
+                        mem_addr = IRH_out[10:8];
+                        mem_data = ALU_out;
+
+                        state_next = fetchH;
+                        AL_cl = 1'b1;
+                    end 
+                    1'b1:begin
+                        // indirect
+
+                        // calculate
+                        ALU_a = AL_out;
+                        ALU_b = mem_in;
+                        ALU_oc = (IRH_out[15:12] == 4'b0001)? 3'b000:
+                                ((IRH_out[15:12] == 4'b0010))? 3'b001:
+                                ((IRH_out[15:12] == 4'b0011))? 3'b010: 3'b011;
+
+                        // save the calculation to the AL 
+                        AL_in = ALU_out;
+                        AL_ld = 1'b1;
+
+                        // setup -> read the resulting op address during next clock
+                        mem_we = 1'b0;
+                        mem_addr = IRH_out[10:8];
+
+                        state_next = writeArith;
+                    end 
+                endcase
+            end
+
+            writeArith: begin
+                // result op address is in mem_in
+                // result val is in AL
+
+                mem_we = 1'b1;
+                mem_addr = mem_in;
+                mem_data = AL_out;
+                state_next = fetchH;
+
+                AL_cl = 1'b1;
+            end
         endcase
 
 
