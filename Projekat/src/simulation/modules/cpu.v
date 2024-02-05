@@ -125,6 +125,11 @@ module cpu #(
         AL_cl = 1'b0; AL_ld = 1'b0; AL_inc = 1'b0; AL_dec = 1'b0; 
         AL_sr = 1'b0; AL_ir = 1'b0; AL_sl = 1'b0; AL_il = 1'b0;
         AL_in = 16'h0;
+    
+    // ALU signals
+        ALU_oc = 3'b0;
+        ALU_a = {DATA_WIDTH{1'b0}};
+        ALU_b = {DATA_WIDTH{1'b0}};
 
         case (state_reg)
             

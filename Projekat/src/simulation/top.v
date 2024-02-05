@@ -119,7 +119,7 @@ module top;
             // memory signALs
 
         #7 dut_rst_n = 1'b1;
-        repeat (50) begin
+        repeat (1) begin
             dut_cpu_in = 16'h9;
             #10;
         end
