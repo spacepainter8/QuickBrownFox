@@ -210,31 +210,32 @@ module DE0_TOP
 	//  Structural coding
 	//=======================================================
 	
-	// top #(
-	// 	.DIVISOR(50_000_000),
-	// 	.FILE_NAME("mem_init.mif"),
-	// 	.ADDR_WIDTH(6),
-	// 	.DATA_WIDTH(16)
-	// ) top_inst (
-	// 	.clk(CLOCK_50),
-	// 	.btn(~BUTTON[2:0]),
-	// 	.sw(SW[9:0]),
-	// 	.led(LEDG[9:0]),
-	// 	.hex({HEX3_D, HEX2_D, HEX1_D, HEX0_D})
-	// );
-
-	cpu #(.ADDR_WIDTH(6), .DATA_WIDTH(16)) cpu_inst (
+	top #(
+		.DIVISOR(50_000_000),
+		.FILE_NAME("mem_init.mif"),
+		.ADDR_WIDTH(6),
+		.DATA_WIDTH(16)
+	) top_inst (
 		.clk(CLOCK_50),
 		.rst_n(SW[9]),
-		.mem_in(0),
-		.in(0),
-		.mem_we(LEDG[0]),
-		.mem_addr(LEDG[1]),
-		.mem_data(LEDG[2]),
-		.out(LEDG[3]),
-		.pc(LEDG[4]),
-		.sp(LEDG[5]),
+		.btn(~BUTTON[2:0]),
+		.sw(SW[8:0]),
+		.led(LEDG[9:0]),
+		.hex({HEX3_D, HEX2_D, HEX1_D, HEX0_D})
 	);
+
+	// cpu #(.ADDR_WIDTH(6), .DATA_WIDTH(16)) cpu_inst (
+	// 	.clk(CLOCK_50),
+	// 	.rst_n(SW[9]),
+	// 	.mem_in(0),
+	// 	.in(0),
+	// 	.mem_we(LEDG[0]),
+	// 	.mem_addr(LEDG[1]),
+	// 	.mem_data(LEDG[2]),
+	// 	.out(LEDG[3]),
+	// 	.pc(LEDG[4]),
+	// 	.sp(LEDG[5])
+	// );
 
 
 

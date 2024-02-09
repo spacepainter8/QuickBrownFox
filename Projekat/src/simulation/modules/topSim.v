@@ -1,4 +1,4 @@
-module top #(
+module topSim #(
     parameter DIVISOR = 50_000_000,
     parameter FILE_NAME = "mem_init.mif",
     parameter ADDR_WIDTH = 6,

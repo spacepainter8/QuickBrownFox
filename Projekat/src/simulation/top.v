@@ -1,147 +1,214 @@
-// module top;
+// // // module top;
 
-//     reg [2:0] dut_oc;
-//     reg [3:0] dut_a;
-//     reg [3:0] dut_b;
-//     wire [3:0] dut_f;
+// // //     reg [2:0] dut_oc;
+// // //     reg [3:0] dut_a;
+// // //     reg [3:0] dut_b;
+// // //     wire [3:0] dut_f;
+
+// // //     reg dut_clk;
+// // //     reg dut_rst_n;
+// // //     reg dut_cl; reg dut_ld;
+// // //     reg [3:0] dut_in;
+// // //     reg dut_inc; reg dut_dec;
+// // //     reg dut_sr; reg dut_ir;
+// // //     reg dut_sl; reg dut_il;
+// // //     wire [3:0] dut_out;
+
+
+// // //     alu dutAlu(dut_oc,dut_a,dut_b,dut_f);
+
+// // //     register dutReg(dut_clk, dut_rst_n, dut_cl, dut_ld, dut_in, dut_inc, dut_dec, dut_sr,
+// // //     dut_ir, dut_sl, dut_il, dut_out);
+
+// // //     integer i;
+// // //     integer done;
+
+// // //     initial begin
+
+// // //             dut_cl = 1'b0; dut_ld = 1'b0; dut_in = 4'b0;
+// // //         dut_inc = 1'b0; dut_dec = 1'b0; dut_sr = 1'b0; dut_ir = 1'b0;
+// // //         dut_sl = 1'b0; dut_il = 1'b0;
+
+// // //         for (i = 0; i<2**11; i=i+1) begin
+// // //             {dut_oc, dut_a, dut_b} = i;
+// // //             #5;
+// // //         end
+// // //         $stop;
+// // //         done = 1;
+// // //          #7 dut_rst_n = 1'b1;
+// // //         repeat (1000) begin
+// // //             dut_cl = $urandom_range(1); dut_ld = $urandom_range(1);
+// // //             dut_in = $urandom_range(15);
+// // //             dut_inc = $urandom_range(1); dut_dec = $urandom_range(1);
+// // //             dut_sr = $urandom_range(1); dut_ir = $urandom_range(1);
+// // //             dut_sl = $urandom_range(1); dut_il = $urandom_range(1);
+// // //             #10;
+// // //         end
+// // //         $finish;
+
+
+
+// // //     end
+
+// // //     initial begin
+// // //         $monitor(
+// // //             "time = %4d, oc = %b, a = %b, b = %b, f = %b",
+// // //             $time, dut_oc, dut_a, dut_b, dut_f
+// // //         );
+// // //     end
+
+// // //     always @(done) begin
+// // //         dut_rst_n = 1'b0;
+// // //         dut_clk = 1'b0;
+// // //         forever begin
+// // //             #5 dut_clk = ~dut_clk;
+// // //         end
+// // //     end
+
+
+// // //     always @(dut_out) begin
+// // //         $strobe(
+// // //             "time = %4d, cl = %b, ld = %b, inc = %b, dec = %b, sr = %b, ir = %b, sl = %b, il = %b, in = %b, out = %b",
+// // //             $time, dut_cl, dut_ld, dut_inc, dut_dec, dut_sr, dut_ir, dut_sl, dut_il, dut_in, dut_out
+// // //         );
+// // //     end
+
+
+
+
+// // // endmodule
+
+
+// // //  $readmemh(MEM_INIT_FILE, ram);
+
+
+// module top;
 
 //     reg dut_clk;
 //     reg dut_rst_n;
-//     reg dut_cl; reg dut_ld;
-//     reg [3:0] dut_in;
-//     reg dut_inc; reg dut_dec;
-//     reg dut_sr; reg dut_ir;
-//     reg dut_sl; reg dut_il;
-//     wire [3:0] dut_out;
-    
+//     wire dut_we;
+//     wire [5:0] dut_addr; // mem addr
+//     wire [15:0] dut_data; // mem data
+//     wire [15:0] data_out; // mem out
 
-//     alu dutAlu(dut_oc,dut_a,dut_b,dut_f);
+//     reg [15:0] dut_cpu_in;
+//     wire [15:0] dut_cpu_out;
+//     wire [5:0] dut_pc;
+//     wire [5:0] dut_sp;
 
-//     register dutReg(dut_clk, dut_rst_n, dut_cl, dut_ld, dut_in, dut_inc, dut_dec, dut_sr,
-//     dut_ir, dut_sl, dut_il, dut_out);
 
-//     integer i;
-//     integer done;
 
-//     initial begin
-        
-//             dut_cl = 1'b0; dut_ld = 1'b0; dut_in = 4'b0;
-//         dut_inc = 1'b0; dut_dec = 1'b0; dut_sr = 1'b0; dut_ir = 1'b0;
-//         dut_sl = 1'b0; dut_il = 1'b0;
+//     memory #(.FILE_NAME("mem_init.hex"),
+//     .ADDR_WIDTH(6), .DATA_WIDTH(16)) dut(dut_clk, dut_we, dut_addr, dut_data, data_out);
 
-//         for (i = 0; i<2**11; i=i+1) begin
-//             {dut_oc, dut_a, dut_b} = i;
-//             #5;
-//         end
-//         $stop;
-//         done = 1;
-//          #7 dut_rst_n = 1'b1;
-//         repeat (1000) begin
-//             dut_cl = $urandom_range(1); dut_ld = $urandom_range(1);
-//             dut_in = $urandom_range(15);
-//             dut_inc = $urandom_range(1); dut_dec = $urandom_range(1);
-//             dut_sr = $urandom_range(1); dut_ir = $urandom_range(1);
-//             dut_sl = $urandom_range(1); dut_il = $urandom_range(1);
-//             #10;
-//         end
-//         $finish;
-
-     
-
-//     end
+//     cpu #(.DATA_WIDTH(16), .ADDR_WIDTH(6)) cpu_dut(dut_clk, dut_rst_n,data_out, dut_cpu_in, 
+//     dut_we, dut_addr, dut_data, dut_cpu_out, dut_pc, dut_sp);
 
 //     initial begin
-//         $monitor(
-//             "time = %4d, oc = %b, a = %b, b = %b, f = %b",
-//             $time, dut_oc, dut_a, dut_b, dut_f
-//         );
-//     end
-
-//     always @(done) begin
 //         dut_rst_n = 1'b0;
 //         dut_clk = 1'b0;
-//         forever begin
+//         forever 
 //             #5 dut_clk = ~dut_clk;
-//         end
 //     end
 
+//     integer i = 0;
+//     integer sw = 0;
 
-//     always @(dut_out) begin
-//         $strobe(
-//             "time = %4d, cl = %b, ld = %b, inc = %b, dec = %b, sr = %b, ir = %b, sl = %b, il = %b, in = %b, out = %b",
-//             $time, dut_cl, dut_ld, dut_inc, dut_dec, dut_sr, dut_ir, dut_sl, dut_il, dut_in, dut_out
+//     initial begin
+//         dut_cpu_in = 0;
+//             // memory signALs
+
+//         #7 dut_rst_n = 1'b1;
+
+
+//         #18;
+//         dut_cpu_in = 16'h8;
+//         #150;
+//         dut_cpu_in = 16'h9;
+//         #120;
+//         dut_cpu_in = 16'h3;
+//         #90;
+//         dut_cpu_in = 16'ha;    
+
+//     // mem[6] = 9; 
+
+//         $finish;
+//     end
+
+//     always @(*)
+//         $monitor(
+//             "time = %4d, we = %b, mem_addr = %h, mem_data = %h, mem_out = %h, in = %h, pc = %h, sp = %h, out = %h",
+//             $time, dut_we, dut_addr, dut_data, data_out, dut_cpu_in, dut_pc, dut_sp, dut_cpu_out
 //         );
-//     end
 
-    
+
+
 
 
 // endmodule
 
-
-//  $readmemh(MEM_INIT_FILE, ram);
-
-
 module top;
 
-    reg dut_clk;
-    reg dut_rst_n;
-    wire dut_we;
-    wire [5:0] dut_addr; // mem addr
-    wire [15:0] dut_data; // mem data
-    wire [15:0] data_out; // mem out
+  //     reg [15:0] dut_cpu_in;
+  //     wire [15:0] dut_cpu_out;
+  //     wire [5:0] dut_pc;
+  //     wire [5:0] dut_sp;
 
-    reg [15:0] dut_cpu_in;
-    wire [15:0] dut_cpu_out;
-    wire [5:0] dut_pc;
-    wire [5:0] dut_sp;
+  reg dut_clk, dut_rst;
+  reg  [ 2:0] dut_btn;
+  reg  [ 8:0] dut_sw;
+  wire [ 9:0] dut_led;
+  wire [27:0] dut_hex;
 
+  topSim #(
+      .DIVISOR(5),
+      .FILE_NAME("mem_init.hex"),
+      .ADDR_WIDTH(6),
+      .DATA_WIDTH(16)
+  ) dut (
+      .clk(dut_clk),
+      .rst_n(dut_rst),
+      .btn(dut_btn),
+      .sw(dut_sw),
+      .led(dut_led),
+      .hex(dut_hex)
+  );
 
+  initial begin
+    dut_rst = 1'b0;
+    dut_clk = 1'b0;
+    forever #5 dut_clk = ~dut_clk;
+  end
 
-    memory #(.FILE_NAME("mem_init.hex"),
-    .ADDR_WIDTH(6), .DATA_WIDTH(16)) dut(dut_clk, dut_we, dut_addr, dut_data, data_out);
+  initial begin
+    dut_btn = 0;
+    dut_sw  = 0;
+    // memory signALs
 
-    cpu #(.DATA_WIDTH(16), .ADDR_WIDTH(6)) cpu_dut(dut_clk, dut_rst_n,data_out, dut_cpu_in, 
-    dut_we, dut_addr, dut_data, dut_cpu_out, dut_pc, dut_sp);
+    #7 dut_rst = 1'b1;
 
-    initial begin
-        dut_rst_n = 1'b0;
-        dut_clk = 1'b0;
-        forever 
-            #5 dut_clk = ~dut_clk;
-    end
+    // repeat (50000) begin
+    //   dut_sw = 8'h8;
+    //   #10;
+    // end
 
-    integer i = 0;
-    integer sw = 0;
+    #18 dut_sw = 8'h8;
+    #650 dut_sw = 8'h9;
+    #600 dut_sw = 8'h3;
 
-    initial begin
-        dut_cpu_in = 0;
-            // memory signALs
-
-        #7 dut_rst_n = 1'b1;
-        repeat (1) begin
-            dut_cpu_in = 16'h9;
-            #10;
-        end
+    #600 dut_sw = 8'h0;
 
     // mem[6] = 9; 
 
-        $finish;
-    end
+    $finish;
+  end
 
-    always @(*)
-        $monitor(
-            "time = %4d, we = %b, mem_addr = %h, mem_data = %h, mem_out = %h, in = %h, pc = %h, sp = %h, out = %h",
-            $time, dut_we, dut_addr, dut_data, data_out, dut_cpu_in, dut_pc, dut_sp, dut_cpu_out
-        );
-
-           
-
+  always @(*) 
+        $monitor("time = %4d, sw = %h, led = %h, pcD = %h, pcJ = %h, sp = %h",
+         $time, dut_sw, dut_led, dut_hex[13:7], dut_hex[6:0], dut_hex[27:14]);
 
 
 endmodule
-
-
 
 
 
